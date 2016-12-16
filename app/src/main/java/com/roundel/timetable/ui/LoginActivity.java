@@ -7,12 +7,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-
-import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,7 +22,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.roundel.timetable.R;
-import com.roundel.timetable.api.GetOAuthToken;
+import com.roundel.timetable.api.APIException;
+import com.roundel.timetable.api.OAuthTokenTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +38,7 @@ public class LoginActivity extends Activity
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private GetOAuthToken mAuthTask = null;
+    private OAuthTokenTask mAuthTask = null;
 
     // UI references.
     private TextInputEditText mEmailView;
@@ -74,7 +74,7 @@ public class LoginActivity extends Activity
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = (Button) findViewById(R.id.email_log_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -85,6 +85,7 @@ public class LoginActivity extends Activity
         });
 
         mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.loginProgress);
     }
 
 
@@ -114,7 +115,8 @@ public class LoginActivity extends Activity
         // Check for a valid password, if the user entered one.
         if(!TextUtils.isEmpty(password) && !isPasswordValid(password))
         {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+            mPasswordContainer.setErrorEnabled(true);
+            mPasswordContainer.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
@@ -144,46 +146,51 @@ public class LoginActivity extends Activity
         {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new GetOAuthToken(this, new GetOAuthToken.GetOAuthTokenResponse()
+            final Context context = this;
+            mAuthTask = new OAuthTokenTask(this, new OAuthTokenTask.GetOAuthTokenResponse()
             {
                 @Override
-                public void onTaskStart()
+                public void onStart()
                 {
-                    Log.d(TAG, "Task started");
+                    showProgress(true);
                 }
 
                 @Override
-                public void onTaskEnd(String result)
+                public void onSuccess(JSONObject result)
                 {
                     showProgress(false);
-                    final Context applicationContext = getApplicationContext();
                     try
                     {
-                        JSONObject json = new JSONObject(result);
-                        if(json.has("access_token") && json.has("token_type"))
-                        {
-                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString(applicationContext.getString(R.string.preference_token), (String) json.get("access_token"));
-                            editor.putString(applicationContext.getString(R.string.preference_auth_type), (String) json.get("token_type"));
-                            editor.putBoolean(applicationContext.getString(R.string.preference_logged_in), true);
-                            editor.apply();
-                            Intent intent = new Intent(applicationContext, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                        else
-                        {
-                            mPasswordContainer.setErrorEnabled(true);
-                            mPasswordContainer.setError(getString(R.string.error_incorrect_password));
-                        }
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString(context.getString(R.string.preference_token), (String) result.get(OAuthTokenTask.JSON_TOKEN));
+                        editor.putString(context.getString(R.string.preference_auth_type), (String) result.get(OAuthTokenTask.JSON_TOKEN_TYPE));
+                        editor.putBoolean(context.getString(R.string.preference_logged_in), true);
+                        editor.apply();
+                        Intent intent = new Intent(context, MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                     catch(JSONException | ClassCastException e)
                     {
                         e.printStackTrace();
                     }
-                    Log.d(TAG, "Task finished: "+result);
+                    Log.d(TAG, "Task finished: " + result);
+                }
+
+                @Override
+                public void onFailure(APIException e)
+                {
+                    showProgress(false);
+                    if(e.getCode() == APIException.INVALID_PASSWORD)
+                    {
+                        mPasswordContainer.setErrorEnabled(true);
+                        mPasswordContainer.setError(getApplicationContext().getString(R.string.error_invalid_password));
+                    }
+                    else
+                    {
+                        APIException.displayErrorToUser(e, context);
+                    }
                 }
             });
             mAuthTask.execute(email, password);

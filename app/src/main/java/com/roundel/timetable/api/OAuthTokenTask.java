@@ -15,13 +15,18 @@ import static com.roundel.timetable.api.APISupport.request;
  * Created by Krzysiek on 2016-12-14.
  */
 
-public class GetOAuthToken extends AsyncTask<String, String, String>
+public class OAuthTokenTask extends AsyncTask<String, String, JSONObject>
 {
+    public static final String JSON_TOKEN = "access_token";
+    public static final String JSON_TOKEN_TYPE = "token_type";
+
     private GetOAuthTokenResponse mListener;
     private Context mContext;
     public final String TAG = getClass().getSimpleName();
 
-    public GetOAuthToken(Context context, GetOAuthTokenResponse listener)
+    private APIException exception = null;
+
+    public OAuthTokenTask(Context context, GetOAuthTokenResponse listener)
     {
         this.mContext = context;
         this.mListener = listener;
@@ -30,11 +35,11 @@ public class GetOAuthToken extends AsyncTask<String, String, String>
     @Override
     protected void onPreExecute()
     {
-        mListener.onTaskStart();
+        mListener.onStart();
     }
 
     @Override
-    protected String doInBackground(String... strings)
+    protected JSONObject doInBackground(String... strings)
     {
         String username = strings[0] == null ? "": strings[0];
         String password = strings[1] == null ? "": strings[1];
@@ -65,20 +70,49 @@ public class GetOAuthToken extends AsyncTask<String, String, String>
         }
         Log.d(TAG, url);
         String response = request(url, "POST", params, headers);
-        Log.d(TAG, response);
-        return response;
+
+        JSONObject jsonObject = new JSONObject();
+        try
+        {
+            jsonObject = new JSONObject(response);
+        }
+        catch(JSONException e)
+        {
+            exception = new APIException(
+                    APIException.PARSE_JSON,
+                    APIException.PARSE_JSON_MESSAGE,
+                    response,
+                    this.getClass().getName()
+            );
+        }
+        if(!jsonObject.has(JSON_TOKEN) || !jsonObject.has(JSON_TOKEN_TYPE))
+        {
+            exception = new APIException(
+                    APIException.INVALID_PASSWORD,
+                    APIException.INVALID_PASSWORD_MESSAGE,
+                    response,
+                    this.getClass().getName()
+            );
+        }
+
+        return jsonObject;
     }
 
     @Override
-    protected void onPostExecute(String s)
+    protected void onPostExecute(JSONObject s)
     {
-        mListener.onTaskEnd(s);
+        if(exception == null)
+            mListener.onSuccess(s);
+        else
+            mListener.onFailure(exception);
     }
 
     public interface GetOAuthTokenResponse
     {
-        void onTaskStart();
+        void onStart();
 
-        void onTaskEnd(String result);
+        void onSuccess(JSONObject result);
+
+        void onFailure(APIException e);
     }
 }
