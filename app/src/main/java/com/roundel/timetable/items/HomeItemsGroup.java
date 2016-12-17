@@ -1,11 +1,8 @@
-package com.roundel.timetable;
+package com.roundel.timetable.items;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by Krzysiek on 2016-12-16.
@@ -24,8 +21,6 @@ public class HomeItemsGroup extends ArrayList
     {
         Object item = this.get(position);
         String className = item.getClass().getName();
-
-        Log.d("TEST", className);
 
         if(item instanceof LuckyNumber)
         {

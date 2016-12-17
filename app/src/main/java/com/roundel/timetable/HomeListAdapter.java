@@ -11,6 +11,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.roundel.timetable.items.Grade;
+import com.roundel.timetable.items.GradeGroup;
+import com.roundel.timetable.items.HomeItemsGroup;
+import com.roundel.timetable.items.LuckyNumber;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -39,7 +44,7 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
 
         CardView cardView = new CardView(mContext);
         final RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, contentPadding / 2, 0, contentPadding / 2);
+        params.setMargins(contentPadding, contentPadding / 2, contentPadding, contentPadding / 2);
         cardView.setLayoutParams(params);
         cardView.setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding);
 
@@ -61,7 +66,7 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
         }
 
         cardView.addView(content);
-        ViewHolder viewHolder = new ViewHolder(cardView);
+        ViewHolder viewHolder = new ViewHolder(cardView, viewType);
 
         return viewHolder;
     }
@@ -145,10 +150,22 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     {
         // each data item is just a string in this case
         private CardView mCardView;
+        private int type;
 
-        public ViewHolder(CardView v)
+        public int getType()
+        {
+            return type;
+        }
+
+        public void setType(int type)
+        {
+            this.type = type;
+        }
+
+        public ViewHolder(CardView v, int type)
         {
             super(v);
+            this.type = type;
             mCardView = v;
         }
 

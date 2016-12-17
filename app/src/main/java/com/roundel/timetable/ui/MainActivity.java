@@ -1,6 +1,5 @@
 package com.roundel.timetable.ui;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,12 +18,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.roundel.timetable.GenericList;
-import com.roundel.timetable.Grade;
-import com.roundel.timetable.GradeGroup;
-import com.roundel.timetable.HomeItemsGroup;
+import com.roundel.timetable.items.Grade;
+import com.roundel.timetable.items.GradeGroup;
+import com.roundel.timetable.items.HomeItemsGroup;
 import com.roundel.timetable.HomeListAdapter;
-import com.roundel.timetable.LuckyNumber;
+import com.roundel.timetable.items.LuckyNumber;
 import com.roundel.timetable.R;
 import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LuckyNumberTask;
@@ -32,14 +30,19 @@ import com.roundel.timetable.api.LuckyNumberTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
     private RecyclerView mRecyclerView;
     private HomeListAdapter mAdapter;
+    private HomeItemsGroup mDataSet;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private String mAuthToken = null;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     private CoordinatorLayout coordinatorLayout;
 
+    private DateFormat luckNumberDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -59,58 +64,6 @@ public class MainActivity extends AppCompatActivity
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayoutMain);
-        mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerView);
-
-        mRecyclerView.setHasFixedSize(true);
-
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        final HomeItemsGroup group = new HomeItemsGroup();
-        final LuckyNumber luckyNumber = new LuckyNumber(12, new Date());
-        final List<GradeGroup> gradeGroups = new ArrayList<>();
-        final List<Grade> grades = new ArrayList<>();
-        final List<Grade> grades2 = new ArrayList<>();
-
-        grades.add(new Grade("4+", new Date(), 3, 100, 0xFFFF0000));
-        grades.add(new Grade("5", new Date(), 1, 101, 0xFF0000FF));
-
-        grades2.add(new Grade("3", new Date(), 3, 100, 0xFF00FF00));
-
-        gradeGroups.add(new GradeGroup(grades, 103));
-        gradeGroups.add(new GradeGroup(grades2, 11));
-        group.add(luckyNumber);
-        group.addAll(gradeGroups);
-
-        Log.d(TAG, "Item at 0 type is "+group.getItemType(1));
-
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                if(swipeDir == ItemTouchHelper.RIGHT)
-                {
-                    final int position = viewHolder.getLayoutPosition();
-                    Log.d(TAG, Integer.toString(position));
-
-                    group.remove(position);
-                    mRecyclerView.removeViewAt(position);
-                    mAdapter.notifyItemRemoved(position);
-                    //mAdapter.notifyItemRangeChanged(position, group.size());
-                }
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target)
-            {
-                return false;
-            }
-        };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-
-        mAdapter = new HomeListAdapter(this, group);
-        mRecyclerView.setAdapter(mAdapter);
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -135,6 +88,73 @@ public class MainActivity extends AppCompatActivity
             mAuthType = auth_type;
 
             fetchData();
+
+            mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerView);
+
+            mRecyclerView.setHasFixedSize(true);
+
+            mLayoutManager = new LinearLayoutManager(this);
+            mRecyclerView.setLayoutManager(mLayoutManager);
+
+            mDataSet = new HomeItemsGroup();
+            /*
+            Example data set
+
+            final LuckyNumber luckyNumber = new LuckyNumber(12, new Date());
+            final List<GradeGroup> gradeGroups = new ArrayList<>();
+            final List<Grade> grades = new ArrayList<>();
+            final List<Grade> grades2 = new ArrayList<>();
+
+            grades.add(new Grade("4+", new Date(new Date().getTime()-13*24*60*60*1000), 3, 100, 0xFFFF0000));
+            grades.add(new Grade("5", new Date(new Date().getTime()-34*24*60*60*1000), 1, 101, 0xFF0000FF));
+            grades.add(new Grade("3", new Date(new Date().getTime()-54*24*60*60*1000), 1, 101, 0xFF0088FF));
+            grades.add(new Grade("4-", new Date(new Date().getTime()-12*24*60*60*1000), 1, 101, 0xFF8800FF));
+
+            grades2.add(new Grade("3", new Date(new Date().getTime()-11*24*60*60*1000), 3, 100, 0xFF44FF00));
+            grades2.add(new Grade("1", new Date(new Date().getTime()-7*24*60*60*1000), 3, 100, 0xFF0FF000));
+            grades2.add(new Grade("2+", new Date(new Date().getTime()-29*24*60*60*1000), 3, 100, 0xFF88FF00));
+            grades2.add(new Grade("4-", new Date(new Date().getTime()-15*24*60*60*1000), 3, 100, 0xFF00FF88));
+
+            gradeGroups.add(new GradeGroup(grades, 103));
+            gradeGroups.add(new GradeGroup(grades2, 11));
+            mDataSet.add(luckyNumber);
+            mDataSet.addAll(gradeGroups);*/
+
+            ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                    if(swipeDir == ItemTouchHelper.RIGHT)
+                    {
+                        final int position = viewHolder.getLayoutPosition();
+                        Log.d(TAG, Integer.toString(position));
+
+                        mDataSet.remove(position);
+                        mRecyclerView.removeViewAt(position);
+                        mAdapter.notifyItemRemoved(position);
+                        //mAdapter.notifyItemRangeChanged(position, group.size());
+                    }
+                }
+
+                @Override
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target)
+                {
+                    return false;
+                }
+
+                @Override
+                public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
+                {
+                    if(((HomeListAdapter.ViewHolder) viewHolder).getType() == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER)
+                        return 0;
+                    return super.getSwipeDirs(recyclerView, viewHolder);
+                }
+            };
+
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+
+            mAdapter = new HomeListAdapter(this, mDataSet);
+            mRecyclerView.setAdapter(mAdapter);
+            itemTouchHelper.attachToRecyclerView(mRecyclerView);
         }
     }
 
@@ -169,7 +189,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onStart()
             {
-                Toast.makeText(MainActivity.this, "Fetching LuckyNumber", Toast.LENGTH_SHORT).show();
+                
             }
 
             @Override
@@ -178,11 +198,15 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "onSuccess");
                 try
                 {
-                    int luckyNumber = result.getInt(LuckyNumberTask.JSON_LUCKY_NUMBER);
-                    String luckyNumberDay = result.getString(LuckyNumberTask.JSON_LUCKY_NUMBER_DAY);
+                    JSONObject info = result.getJSONObject(LuckyNumberTask.JSON_LUCKY_NUMBER_ROOT);
+                    int luckyNumber = info.getInt(LuckyNumberTask.JSON_LUCKY_NUMBER);
+                    String luckyNumberDay = info.getString(LuckyNumberTask.JSON_LUCKY_NUMBER_DAY);
+                    Log.d(TAG, luckyNumberDay);
                     //TODO: Display the number in a proper way
+                    mDataSet.add(new LuckyNumber(luckyNumber, luckNumberDateFormat.parse(luckyNumberDay)));
+                    mAdapter.notifyDataSetChanged();
                 }
-                catch(JSONException e)
+                catch(JSONException | ParseException e)
                 {
                     e.printStackTrace();
                 }

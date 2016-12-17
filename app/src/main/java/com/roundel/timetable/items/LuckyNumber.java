@@ -1,4 +1,4 @@
-package com.roundel.timetable;
+package com.roundel.timetable.items;
 
 import java.util.Date;
 
