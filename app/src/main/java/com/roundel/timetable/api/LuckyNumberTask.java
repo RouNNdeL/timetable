@@ -8,6 +8,7 @@ import com.roundel.timetable.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import static com.roundel.timetable.api.APISupport.request;
 
 /**
@@ -19,11 +20,9 @@ public class LuckyNumberTask extends AsyncTask<String, String, JSONObject>
     public static final String JSON_LUCKY_NUMBER = "LuckyNumber";
     public static final String JSON_LUCKY_NUMBER_ROOT = "LuckyNumber";
     public static final String JSON_LUCKY_NUMBER_DAY = "LuckyNumberDay";
-
+    private final String TAG = getClass().getSimpleName();
     private LuckyNumberTask.GetLuckyNumberResponse mListener;
     private Context mContext;
-    private final String TAG = getClass().getSimpleName();
-
     private APIException exception = null;
 
     public LuckyNumberTask(Context context, LuckyNumberTask.GetLuckyNumberResponse listener)
@@ -41,15 +40,15 @@ public class LuckyNumberTask extends AsyncTask<String, String, JSONObject>
     @Override
     protected JSONObject doInBackground(String... strings)
     {
-        String token = strings[0] == null ? "": strings[0];
-        String auth_type = strings[1] == null ? "": strings[1];
+        String token = strings[0] == null ? "" : strings[0];
+        String auth_type = strings[1] == null ? "" : strings[1];
         JSONObject params = new JSONObject();
         JSONObject headers = new JSONObject();
-        String url = mContext.getString(R.string.api_base_url)+mContext.getString(R.string.api_luck_numbers);
+        String url = mContext.getString(R.string.api_base_url) + mContext.getString(R.string.api_luck_numbers);
 
         try
         {
-            headers.put("Authorization", auth_type+" " + token);
+            headers.put("Authorization", auth_type + " " + token);
             headers.put("User-Agent", mContext.getString(R.string.api_user_agent));
             headers.put("Content-Type", mContext.getString(R.string.api_content_type_json));
             headers.put("Accept-Encoding", mContext.getString(R.string.api_accept_encoding));

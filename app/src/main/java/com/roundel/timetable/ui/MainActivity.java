@@ -16,16 +16,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.roundel.timetable.items.Grade;
-import com.roundel.timetable.items.GradeGroup;
-import com.roundel.timetable.items.HomeItemsGroup;
 import com.roundel.timetable.HomeListAdapter;
-import com.roundel.timetable.items.LuckyNumber;
 import com.roundel.timetable.R;
 import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LuckyNumberTask;
+import com.roundel.timetable.items.HomeItemsGroup;
+import com.roundel.timetable.items.LuckyNumber;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,9 +30,6 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
@@ -120,9 +114,11 @@ public class MainActivity extends AppCompatActivity
             mDataSet.add(luckyNumber);
             mDataSet.addAll(gradeGroups);*/
 
-            ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT)
+            {
                 @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir)
+                {
                     if(swipeDir == ItemTouchHelper.RIGHT)
                     {
                         final int position = viewHolder.getLayoutPosition();
@@ -189,7 +185,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onStart()
             {
-                
+
             }
 
             @Override

@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by Krzysiek on 2016-12-16.
  */
 
-public class GenericList <T> extends ArrayList<T>
+public class GenericList<T> extends ArrayList<T>
 {
     private Class<T> genericType;
 

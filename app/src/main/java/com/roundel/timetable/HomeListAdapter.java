@@ -152,6 +152,13 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
         private CardView mCardView;
         private int type;
 
+        public ViewHolder(CardView v, int type)
+        {
+            super(v);
+            this.type = type;
+            mCardView = v;
+        }
+
         public int getType()
         {
             return type;
@@ -160,13 +167,6 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
         public void setType(int type)
         {
             this.type = type;
-        }
-
-        public ViewHolder(CardView v, int type)
-        {
-            super(v);
-            this.type = type;
-            mCardView = v;
         }
 
         public CardView getCardView()

@@ -9,6 +9,7 @@ import com.roundel.timetable.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import static com.roundel.timetable.api.APISupport.request;
 
 /**
@@ -19,11 +20,9 @@ public class OAuthTokenTask extends AsyncTask<String, String, JSONObject>
 {
     public static final String JSON_TOKEN = "access_token";
     public static final String JSON_TOKEN_TYPE = "token_type";
-
+    public final String TAG = getClass().getSimpleName();
     private GetOAuthTokenResponse mListener;
     private Context mContext;
-    public final String TAG = getClass().getSimpleName();
-
     private APIException exception = null;
 
     public OAuthTokenTask(Context context, GetOAuthTokenResponse listener)
@@ -41,11 +40,11 @@ public class OAuthTokenTask extends AsyncTask<String, String, JSONObject>
     @Override
     protected JSONObject doInBackground(String... strings)
     {
-        String username = strings[0] == null ? "": strings[0];
-        String password = strings[1] == null ? "": strings[1];
+        String username = strings[0] == null ? "" : strings[0];
+        String password = strings[1] == null ? "" : strings[1];
         JSONObject params = new JSONObject();
         JSONObject headers = new JSONObject();
-        String url = mContext.getString(R.string.api_base_url)+mContext.getString(R.string.api_oauth_token);
+        String url = mContext.getString(R.string.api_base_url) + mContext.getString(R.string.api_oauth_token);
 
         try
         {

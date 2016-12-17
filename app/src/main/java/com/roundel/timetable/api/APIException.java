@@ -36,10 +36,12 @@ public class APIException extends Exception
         this.content = content;
         this.context = context;
     }
+
     public APIException(int code, String message, String context)
     {
         this(code, message, "", context);
     }
+
     public APIException(int code, String context)
     {
         this(code, UNKNOWN_ERROR_MESSAGE, context);
@@ -47,7 +49,7 @@ public class APIException extends Exception
 
     public static void displayErrorToUser(APIException e, final Context context)
     {
-        final int code =  e.getCode();
+        final int code = e.getCode();
         final String message = e.getMessage();
         final String content = e.getContent();
         final String err_context = e.getContext();
@@ -61,7 +63,8 @@ public class APIException extends Exception
             public void onClick(DialogInterface dialogInterface, int i)
             {
                 String body = String.format(Locale.ENGLISH,
-                        "Error code: %d\n\nError message: %s\n\nError content: %s\n\nError err_context: %s", code, message, content, err_context);
+                        "Error code: %d\n\nError message: %s\n\nError content: %s\n\nError err_context: %s", code, message, content, err_context
+                );
                 Intent sendIntent = new Intent();
                 sendIntent.setData(Uri.parse("mailto:rounndel@gmail.com"));
                 sendIntent.setAction(Intent.ACTION_SENDTO);

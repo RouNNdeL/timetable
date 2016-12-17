@@ -1,7 +1,5 @@
 package com.roundel.timetable.items;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 /**
