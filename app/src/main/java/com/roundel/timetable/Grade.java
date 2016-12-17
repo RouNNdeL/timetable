@@ -12,13 +12,26 @@ public class Grade
     private Date date;
     private int weight;
     private int type;
+    private int color;
 
-    public Grade(String grade, Date date, int weight, int type)
+    public Grade(String grade, Date date, int weight, int type, int color)
     {
         this.grade = grade;
         this.date = date;
         this.weight = weight;
         this.type = type;
+        this.color = color;
+
+    }
+
+    public int getColor()
+    {
+        return color;
+    }
+
+    public void setColor(int color)
+    {
+        this.color = color;
     }
 
     public String getGrade()

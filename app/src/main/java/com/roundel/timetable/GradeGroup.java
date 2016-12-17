@@ -13,9 +13,9 @@ public class GradeGroup
     public static final int ITEM_TYPE_ANNOUNCEMENT = 102;
 
     private List<Grade> grades;
-    private String subject;
+    private int subject;
 
-    public GradeGroup(List<Grade> grades, String subject)
+    public GradeGroup(List<Grade> grades, int subject)
     {
         this.grades = grades;
         this.subject = subject;
@@ -23,5 +23,25 @@ public class GradeGroup
 
     public GradeGroup()
     {
+    }
+
+    public List<Grade> getGrades()
+    {
+        return grades;
+    }
+
+    public void setGrades(List<Grade> grades)
+    {
+        this.grades = grades;
+    }
+
+    public int getSubject()
+    {
+        return subject;
+    }
+
+    public void setSubject(int subject)
+    {
+        this.subject = subject;
     }
 }

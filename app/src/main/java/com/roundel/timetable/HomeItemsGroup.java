@@ -1,82 +1,42 @@
 package com.roundel.timetable;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Krzysiek on 2016-12-16.
  */
 
-public class HomeItemsGroup
+public class HomeItemsGroup extends ArrayList
 {
     public static final int ITEM_TYPE_GRADE_GROUP = 200;
     public static final int ITEM_TYPE_LUCKY_NUMBER = 201;
-
-    private GenericList<GradeGroup> gradeGroupList = new GenericList<>(GradeGroup.class);
-    private LuckyNumber luckyNumber;
 
     public HomeItemsGroup()
     {
     }
 
-    public Object getItemAtPosition(int position)
-    {
-        if(position == 0 && luckyNumber != null)
-            return luckyNumber;
-        else if(luckyNumber != null)
-            position -= 1;
-
-        if(gradeGroupList != null && position < gradeGroupList.size())
-            return gradeGroupList.get(position);
-        if(gradeGroupList != null)
-            position -= gradeGroupList.size();
-
-        return null;
-    }
-
-    public int getItemCount()
-    {
-        int count = 0;
-
-        if(luckyNumber != null)
-            count+=1;
-        if(gradeGroupList != null)
-            count+=gradeGroupList.size();
-
-        return count;
-    }
-
     public int getItemType(int position)
     {
-        Object item = getItemAtPosition(position);
+        Object item = this.get(position);
+        String className = item.getClass().getName();
+
+        Log.d("TEST", className);
 
         if(item instanceof LuckyNumber)
+        {
             return ITEM_TYPE_LUCKY_NUMBER;
+        }
 
-        //An ugly check for item Generic Class
-        if(item instanceof GenericList && ((GenericList<?>) item).getGenericType() == GradeGroup.class)
+        if(item instanceof GradeGroup)
+        {
             return ITEM_TYPE_GRADE_GROUP;
+        }
 
         return -1;
-    }
-
-    public LuckyNumber getLuckyNumber()
-    {
-        return luckyNumber;
-    }
-
-    public void setLuckyNumber(LuckyNumber luckyNumber)
-    {
-        this.luckyNumber = luckyNumber;
-    }
-
-    public List<GradeGroup> getGradeGroupList()
-    {
-        return gradeGroupList;
-    }
-
-    public void setGradeGroupList(GenericList<GradeGroup> gradeGroupList)
-    {
-        this.gradeGroupList = gradeGroupList;
     }
 }

@@ -19,6 +19,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.roundel.timetable.GenericList;
+import com.roundel.timetable.Grade;
+import com.roundel.timetable.GradeGroup;
 import com.roundel.timetable.HomeItemsGroup;
 import com.roundel.timetable.HomeListAdapter;
 import com.roundel.timetable.LuckyNumber;
@@ -29,12 +32,14 @@ import com.roundel.timetable.api.LuckyNumberTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private HomeListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private String mAuthToken = null;
@@ -61,15 +66,36 @@ public class MainActivity extends AppCompatActivity
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        HomeItemsGroup group = new HomeItemsGroup();
-        group.setLuckyNumber(new LuckyNumber(12, new Date()));
+        final HomeItemsGroup group = new HomeItemsGroup();
+        final LuckyNumber luckyNumber = new LuckyNumber(12, new Date());
+        final List<GradeGroup> gradeGroups = new ArrayList<>();
+        final List<Grade> grades = new ArrayList<>();
+        final List<Grade> grades2 = new ArrayList<>();
+
+        grades.add(new Grade("4+", new Date(), 3, 100, 0xFFFF0000));
+        grades.add(new Grade("5", new Date(), 1, 101, 0xFF0000FF));
+
+        grades2.add(new Grade("3", new Date(), 3, 100, 0xFF00FF00));
+
+        gradeGroups.add(new GradeGroup(grades, 103));
+        gradeGroups.add(new GradeGroup(grades2, 11));
+        group.add(luckyNumber);
+        group.addAll(gradeGroups);
+
+        Log.d(TAG, "Item at 0 type is "+group.getItemType(1));
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 if(swipeDir == ItemTouchHelper.RIGHT)
                 {
-                    Snackbar.make(coordinatorLayout, "Dismissed", Snackbar.LENGTH_SHORT).show();
+                    final int position = viewHolder.getLayoutPosition();
+                    Log.d(TAG, Integer.toString(position));
+
+                    group.remove(position);
+                    mRecyclerView.removeViewAt(position);
+                    mAdapter.notifyItemRemoved(position);
+                    //mAdapter.notifyItemRangeChanged(position, group.size());
                 }
             }
 
@@ -82,7 +108,7 @@ public class MainActivity extends AppCompatActivity
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
 
-        mAdapter = new HomeListAdapter(group);
+        mAdapter = new HomeListAdapter(this, group);
         mRecyclerView.setAdapter(mAdapter);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 

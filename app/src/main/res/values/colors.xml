@@ -5,4 +5,5 @@
     <color name="colorAccent">#2979ff</color>
     <color name="colorAccentDark">#2962ff</color>
     <color name="background_material_grey100">#f5f5f5</color>
+    <color name="newGradeRed">#F44336</color>
 </resources>

@@ -1,11 +1,14 @@
 package com.roundel.timetable;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -21,56 +24,122 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     private final String TAG = getClass().getSimpleName();
     private HomeItemsGroup homeItemsGroup;
     private DateFormat dateFormat = new SimpleDateFormat("d MMMM yyyy", Locale.getDefault());
+    private Context mContext;
 
-    public HomeListAdapter(HomeItemsGroup homeItemsGroup)
+    public HomeListAdapter(Context context, HomeItemsGroup homeItemsGroup)
     {
+        this.mContext = context;
         this.homeItemsGroup = homeItemsGroup;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        CardView v = null;
+        int contentPadding = Math.round(mContext.getResources().getDimension(R.dimen.card_contentPadding));
 
-        Log.d(TAG, Integer.toString(viewType));
+        CardView cardView = new CardView(mContext);
+        final RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, contentPadding / 2, 0, contentPadding / 2);
+        cardView.setLayoutParams(params);
+        cardView.setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding);
 
-        if(viewType == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER)
+        View content;
+
+        switch(viewType)
         {
-            v = (CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.lucky_number_card, parent, false);
+            case HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER:
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.lucky_number_layout, parent, false);
+                break;
+
+            case HomeItemsGroup.ITEM_TYPE_GRADE_GROUP:
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.grade_group_new, parent, false);
+                break;
+
+            default:
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_card_content, parent, false);
+                break;
         }
 
-        ViewHolder vh = new ViewHolder(v);
-        return vh;
+        cardView.addView(content);
+        ViewHolder viewHolder = new ViewHolder(cardView);
+
+        return viewHolder;
     }
 
     @Override
     public int getItemViewType(int position)
     {
-        return homeItemsGroup.getItemType(position);
+        final int itemType = homeItemsGroup.getItemType(position);
+        return itemType;
     }
 
     @Override
     public int getItemCount()
     {
-        return homeItemsGroup.getItemCount();
+        return homeItemsGroup.size();
     }
 
     @Override
     public void onBindViewHolder(HomeListAdapter.ViewHolder holder, int position)
     {
         int type = getItemViewType(position);
-        Object item = homeItemsGroup.getItemAtPosition(position);
+        Object item = homeItemsGroup.get(position);
+        final CardView cardView = holder.getCardView();
 
-        if(type == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER)
+        switch(type)
         {
-            TextView title = (TextView) holder.getCardView().findViewById(R.id.luckyNumberTitle);
-            TextView number = (TextView) holder.getCardView().findViewById(R.id.luckyNumber);
-            TextView day = (TextView) holder.getCardView().findViewById(R.id.luckyNumberDay);
+            case HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER:
+                TextView title = (TextView) cardView.findViewById(R.id.luckyNumberTitle);
+                TextView number = (TextView) cardView.findViewById(R.id.luckyNumber);
+                TextView day = (TextView) cardView.findViewById(R.id.luckyNumberDay);
 
-            number.setText(Integer.toString(((LuckyNumber) item).getNumber()));
-            day.setText(dateFormat.format(((LuckyNumber) item).getDate()));
+                final LuckyNumber luckyNumber = (LuckyNumber) item;
+                number.setText(Integer.toString(luckyNumber.getNumber()));
+                day.setText(dateFormat.format(luckyNumber.getDate()));
+                break;
+            case HomeItemsGroup.ITEM_TYPE_GRADE_GROUP:
+                LinearLayout container = (LinearLayout) cardView.findViewById(R.id.gradeGroupNewGradeContainer);
+                TextView subject = (TextView) cardView.findViewById(R.id.gradeGroupNewSubject);
+                TextView amount = (TextView) cardView.findViewById(R.id.gradeGroupNewAmount);
+
+                //container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                final GradeGroup gradeGroup = (GradeGroup) item;
+
+                subject.setText(Integer.toString(gradeGroup.getSubject()));
+                amount.setText(String.format(Locale.getDefault(), "%d new", gradeGroup.getGrades().size()));
+                for(Grade grade : gradeGroup.getGrades())
+                {
+                    LinearLayout singleGrade = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.single_grade_layout, null);
+
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    final int contentPadding = Math.round(mContext.getResources().getDimension(R.dimen.card_contentPadding));
+                    params.setMargins(0, contentPadding / 2, 0, contentPadding / 2);
+                    singleGrade.setLayoutParams(params);
+
+                    TextView gradeType = (TextView) singleGrade.findViewById(R.id.gradeType);
+                    TextView gradeNumber = (TextView) singleGrade.findViewById(R.id.gradeNumber);
+                    TextView gradeDay = (TextView) singleGrade.findViewById(R.id.gradeDay);
+
+                    Log.d(TAG, Integer.toHexString(mContext.getColor(R.color.colorAccentDark)));
+
+                    gradeNumber.setBackgroundTintList(ColorStateList.valueOf(grade.getColor()));
+                    gradeNumber.setText(grade.getGrade());
+                    gradeDay.setText(dateFormat.format(grade.getDate()));
+                    gradeType.setText(Integer.toString(grade.getType()));
+
+                    container.addView(singleGrade);
+                }
+
+                break;
+
+            default:
+                TextView message = (TextView) cardView.findViewById(R.id.defaultErrorText);
+                message.setText(String.format(Locale.getDefault(), "View type %d not found", type));
+                break;
         }
     }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
