@@ -2,7 +2,6 @@ language: android
 before_install:
      - chmod +x gradlew
 android:
-  components:
     components:
         # Update Android SDK Tools
         - tools
