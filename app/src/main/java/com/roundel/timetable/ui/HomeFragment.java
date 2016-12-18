@@ -62,12 +62,13 @@ public class HomeFragment extends Fragment
 
         mClient = new LibrusClient(getContext(), mAuthToken, mAuthType);
 
+
+        mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView = (RecyclerView) view.findViewById(R.id.main_recyclerView);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.main_swipeRefreshLayout);
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mLayoutManager = new LinearLayoutManager(getContext());
 
         mDataSet = new HomeItemsGroup();
 
@@ -125,11 +126,14 @@ public class HomeFragment extends Fragment
             }
         });
 
-        mSwipeRefreshLayout.setColorSchemeColors(
+        /*mSwipeRefreshLayout.setColorSchemeColors(
                 getContext().getColor(R.color.refreshLayoutBlue),
                 getContext().getColor(R.color.refreshLayoutRed),
                 getContext().getColor(R.color.refreshLayoutGreen),
                 getContext().getColor(R.color.refreshLayoutYellow)
+        );*/
+        mSwipeRefreshLayout.setColorSchemeColors(
+                getContext().getColor(R.color.colorAccentDark)
         );
         fetchData(false);
         return view;

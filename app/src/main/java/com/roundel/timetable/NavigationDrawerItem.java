@@ -11,6 +11,14 @@ public class NavigationDrawerItem
     public static final int TYPE_ITEM = 400;
     public static final int TYPE_SUB_HEADER = 401;
     public static final int TYPE_DIVIDER = 402;
+    public static final int TYPE_EMPTY_SPACE = 403;
+
+    /*
+    TYPE_EMPTY_SPACE:
+
+    Add 8dp padding at the top and bottom of every list grouping.
+     One exception is at the top of a list with a subheader, because subheaders contain their own padding.
+     */
 
     private int type;
     private String text;

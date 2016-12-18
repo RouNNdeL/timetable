@@ -2,20 +2,14 @@ package com.roundel.timetable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -51,8 +45,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             case NavigationDrawerItem.TYPE_DIVIDER:
                 content = LayoutInflater.from(parent.getContext()).inflate(R.layout.navigation_drawer_divider, parent, false);
                 break;
+            case NavigationDrawerItem.TYPE_EMPTY_SPACE:
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.navigation_drawer_empty_space, parent, false);
+                break;
             default:
-                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_card_content, parent, false);
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.navigation_drawer_empty_layout, parent, false);
                 break;
         }
 
@@ -104,8 +101,10 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             case NavigationDrawerItem.TYPE_DIVIDER:
                 break;
 
+            case NavigationDrawerItem.TYPE_EMPTY_SPACE:
+                break;
+
             default:
-                ((TextView) content.findViewById(R.id.defaultErrorText)).setText(String.format(Locale.getDefault(), "View type %d not found", type));
                 break;
         }
     }

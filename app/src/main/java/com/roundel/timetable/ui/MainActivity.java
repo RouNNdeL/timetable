@@ -78,14 +78,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
             mNavigationLayoutManager = new LinearLayoutManager(this);
-
             mNavigationDrawerItems = new NavigationDrawerItems();
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_SUB_HEADER, "Main header"));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_help_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Item 2", getDrawable(R.drawable.ic_menu_white_24dp)));
+
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Home", getDrawable(R.drawable.ic_home_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Calendar", getDrawable(R.drawable.ic_event_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_grade_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Announcements", getDrawable(R.drawable.ic_announcement_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Timetable", getDrawable(R.drawable.ic_timetable_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_DIVIDER));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_SUB_HEADER, "Header"));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_help_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Contact", getDrawable(R.drawable.ic_mail_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Settings", getDrawable(R.drawable.ic_settings_white_24dp)));
             try
             {
                 mNavigationDrawerItems.setEnabled(1);
@@ -175,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    //OnDrawerItemClick
     @Override
     public void onClick(View view)
     {
@@ -184,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(view.getContext(), "Clicked on " + position, Toast.LENGTH_SHORT).show();
             mNavigationDrawerItems.setEnabled(position);
             mNavigationDrawerAdapter.notifyDataSetChanged();
+            mDrawerLayout.closeDrawers();
         }
     }
 
