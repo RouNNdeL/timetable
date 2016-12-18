@@ -145,6 +145,23 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
         }
     }
 
+    public void clear() {
+        homeItemsGroup.clear();
+        notifyDataSetChanged();
+    }
+
+    // Add a list of items
+    public void addAll(HomeItemsGroup list) {
+        homeItemsGroup.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void add(Object object)
+    {
+        homeItemsGroup.add(object);
+        notifyDataSetChanged();
+    }
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {

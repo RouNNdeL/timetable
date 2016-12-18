@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,10 +18,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.roundel.timetable.HomeListAdapter;
+import com.roundel.timetable.NavigationDrawerAdapter;
 import com.roundel.timetable.R;
 import com.roundel.timetable.api.APIException;
+import com.roundel.timetable.api.LibrusClient;
 import com.roundel.timetable.api.LuckyNumberTask;
 import com.roundel.timetable.items.HomeItemsGroup;
 import com.roundel.timetable.items.LuckyNumber;
@@ -34,21 +41,22 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private HomeListAdapter mAdapter;
     private HomeItemsGroup mDataSet;
     private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.LayoutManager mNavigationLayoutManager;
 
     private String mAuthToken = null;
     private String mAuthType = null;
+
+    LibrusClient mClient = null;
 
     private String TAG = getClass().getSimpleName();
 
     private Toolbar toolbar;
     private CoordinatorLayout coordinatorLayout;
-
-    private DateFormat luckNumberDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -81,16 +89,33 @@ public class MainActivity extends AppCompatActivity
             mAuthToken = token;
             mAuthType = auth_type;
 
-            fetchData();
+            mClient = new LibrusClient(this, mAuthToken, mAuthType);
 
             mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerView);
+
+            mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.main_swipeRefreshLayout);
 
             mRecyclerView.setHasFixedSize(true);
 
             mLayoutManager = new LinearLayoutManager(this);
+            mNavigationLayoutManager = new LinearLayoutManager(this);
             mRecyclerView.setLayoutManager(mLayoutManager);
 
             mDataSet = new HomeItemsGroup();
+
+            String[] mPlanetTitles = getResources().getStringArray(R.array.planets);
+            DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            RecyclerView mDrawerList = (RecyclerView) findViewById(R.id.left_drawer);
+
+            mDrawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
+
+            Window window = getWindow();
+            window.setStatusBarColor(getColor(R.color.colorPrimaryDark));
+
+            // Set the adapter for the list view
+            String[] a = getResources().getStringArray(R.array.planets);
+            mDrawerList.setLayoutManager(mNavigationLayoutManager);
+            mDrawerList.setAdapter(new NavigationDrawerAdapter(a, this));
             /*
             Example data set
 
@@ -112,7 +137,8 @@ public class MainActivity extends AppCompatActivity
             gradeGroups.add(new GradeGroup(grades, 103));
             gradeGroups.add(new GradeGroup(grades2, 11));
             mDataSet.add(luckyNumber);
-            mDataSet.addAll(gradeGroups);*/
+            mDataSet.addAll(gradeGroups);
+            */
 
             ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT)
             {
@@ -151,7 +177,23 @@ public class MainActivity extends AppCompatActivity
             mAdapter = new HomeListAdapter(this, mDataSet);
             mRecyclerView.setAdapter(mAdapter);
             itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+            {
+                @Override
+                public void onRefresh()
+                {
+                    fetchData(true);
+                }
+            });
+
+            mSwipeRefreshLayout.setColorSchemeColors(
+                    getColor(R.color.refreshLayoutBlue),
+                    getColor(R.color.refreshLayoutRed),
+                    getColor(R.color.refreshLayoutGreen),
+                    getColor(R.color.refreshLayoutYellow));
         }
+        fetchData(false);
     }
 
     @Override
@@ -177,45 +219,37 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void fetchData()
+    private void fetchData(final boolean showRefresh)
     {
+        mDataSet.clear();
+        mAdapter.notifyDataSetChanged();
+
         final Context context = this;
-        LuckyNumberTask task = new LuckyNumberTask(this, new LuckyNumberTask.GetLuckyNumberResponse()
+
+        mClient.fetchLuckyNumber(new LibrusClient.LuckyNumberResponseListener()
         {
             @Override
             public void onStart()
             {
-
+                if(showRefresh)
+                    mSwipeRefreshLayout.setRefreshing(true);
             }
 
             @Override
-            public void onSuccess(JSONObject result)
+            public void onSuccess(LuckyNumber luckyNumber)
             {
-                Log.d(TAG, "onSuccess");
-                try
-                {
-                    JSONObject info = result.getJSONObject(LuckyNumberTask.JSON_LUCKY_NUMBER_ROOT);
-                    int luckyNumber = info.getInt(LuckyNumberTask.JSON_LUCKY_NUMBER);
-                    String luckyNumberDay = info.getString(LuckyNumberTask.JSON_LUCKY_NUMBER_DAY);
-                    Log.d(TAG, luckyNumberDay);
-                    //TODO: Display the number in a proper way
-                    mDataSet.add(new LuckyNumber(luckyNumber, luckNumberDateFormat.parse(luckyNumberDay)));
-                    mAdapter.notifyDataSetChanged();
-                }
-                catch(JSONException | ParseException e)
-                {
-                    e.printStackTrace();
-                }
+                mDataSet.add(luckyNumber);
+                mAdapter.notifyDataSetChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onFailure(APIException e)
+            public void onFailure(APIException exception)
             {
-                Log.d(TAG, "onFailure");
-                APIException.displayErrorToUser(e, context);
+                mSwipeRefreshLayout.setRefreshing(false);
+                APIException.displayErrorToUser(exception, context);
             }
         });
-        task.execute(mAuthToken, mAuthType);
     }
 
     private void logout()

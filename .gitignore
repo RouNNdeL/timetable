@@ -9,3 +9,4 @@
 *.dex
 *.class
 libs/
+/app/build/

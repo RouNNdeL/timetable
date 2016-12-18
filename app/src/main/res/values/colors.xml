@@ -6,4 +6,10 @@
     <color name="colorAccentDark">#2962ff</color>
     <color name="background_material_grey100">#f5f5f5</color>
     <color name="newGradeRed">#F44336</color>
+    <color name="refreshLayoutRed">#F44336</color>
+    <color name="refreshLayoutBlue">#3F51B5</color>
+    <color name="refreshLayoutGreen">#4CAF50</color>
+    <color name="refreshLayoutYellow">#FFEB3B</color>
+    <color name="greyDivider_12">#1F000000</color>
+    <color name="icon_light54">#8A000000</color>
 </resources>
