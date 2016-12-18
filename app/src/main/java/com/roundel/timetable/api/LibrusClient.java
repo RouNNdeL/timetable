@@ -1,9 +1,8 @@
 package com.roundel.timetable.api;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.roundel.timetable.items.LuckyNumber;
+import com.roundel.timetable.librus.LuckyNumber;
 
 import org.json.JSONException;
 import org.json.JSONObject;

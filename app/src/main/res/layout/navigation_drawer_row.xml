@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_container"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:orientation="horizontal"
+    android:background="?android:selectableItemBackground"
+    android:clickable="true"
     android:gravity="center_vertical"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp">
-    
+    android:orientation="horizontal"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp">
+
     <ImageView
         android:id="@+id/row_icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/ic_help_black_24dp"
-        android:scaleType="fitCenter"/>
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_help_white_24dp"/>
 
     <TextView
         android:id="@+id/row_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="Grades"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
         android:gravity="center_vertical"
-        android:layout_marginStart="16dp"/>
+        android:lines="1"
+        android:textAppearance="@style/AppTheme.DrawerListItem"/>
 
 </LinearLayout>
+

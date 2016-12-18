@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.roundel.timetable.items.Grade;
-import com.roundel.timetable.items.GradeGroup;
-import com.roundel.timetable.items.HomeItemsGroup;
-import com.roundel.timetable.items.LuckyNumber;
+import com.roundel.timetable.librus.Grade;
+import com.roundel.timetable.librus.GradeGroup;
+import com.roundel.timetable.librus.HomeItemsGroup;
+import com.roundel.timetable.librus.LuckyNumber;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,10 +31,13 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     private DateFormat dateFormat = new SimpleDateFormat("d MMMM yyyy", Locale.getDefault());
     private Context mContext;
 
-    public HomeListAdapter(Context context, HomeItemsGroup homeItemsGroup)
+    private View.OnClickListener mOnClickListener;
+
+    public HomeListAdapter(Context context, HomeItemsGroup homeItemsGroup, View.OnClickListener onClickListener)
     {
         this.mContext = context;
         this.homeItemsGroup = homeItemsGroup;
+        this.mOnClickListener = onClickListener;
     }
 
     @Override
@@ -65,6 +68,7 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
                 break;
         }
 
+        content.setOnClickListener(mOnClickListener);
         cardView.addView(content);
         ViewHolder viewHolder = new ViewHolder(cardView, viewType);
 

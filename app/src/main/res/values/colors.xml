@@ -11,5 +11,10 @@
     <color name="refreshLayoutGreen">#4CAF50</color>
     <color name="refreshLayoutYellow">#FFEB3B</color>
     <color name="greyDivider_12">#1F000000</color>
+    <color name="light38">#61000000</color>
+    <color name="light8">#14000000</color>
+    <color name="light6">#0F000000</color>
     <color name="icon_light54">#8A000000</color>
+    <color name="text_light87">#DE000000</color>
+    <color name="text_light54">#8A000000</color>
 </resources>

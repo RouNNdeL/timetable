@@ -35,4 +35,6 @@
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="action_log_out">Log out</string>
     <string name="lucky_number_title">Lucky number</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 </resources>

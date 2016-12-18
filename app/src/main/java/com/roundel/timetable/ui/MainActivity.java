@@ -1,62 +1,48 @@
 package com.roundel.timetable.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.View;
+import android.widget.Toast;
 
-import com.roundel.timetable.HomeListAdapter;
 import com.roundel.timetable.NavigationDrawerAdapter;
+import com.roundel.timetable.NavigationDrawerItem;
+import com.roundel.timetable.NavigationDrawerItems;
 import com.roundel.timetable.R;
-import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LibrusClient;
-import com.roundel.timetable.api.LuckyNumberTask;
-import com.roundel.timetable.items.HomeItemsGroup;
-import com.roundel.timetable.items.LuckyNumber;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-    private RecyclerView mRecyclerView;
-    private HomeListAdapter mAdapter;
-    private HomeItemsGroup mDataSet;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.LayoutManager mNavigationLayoutManager;
+    private LibrusClient mClient = null;
 
+    private NavigationDrawerItems mNavigationDrawerItems;
+    private DrawerLayout mDrawerLayout;
+    private RecyclerView mNavigationDrawerRecyclerView;
+    private RecyclerView.LayoutManager mNavigationLayoutManager;
+    private NavigationDrawerAdapter mNavigationDrawerAdapter;
     private String mAuthToken = null;
     private String mAuthType = null;
-
-    LibrusClient mClient = null;
-
     private String TAG = getClass().getSimpleName();
 
-    private Toolbar toolbar;
-    private CoordinatorLayout coordinatorLayout;
+    private Toolbar mToolbar;
+    private CoordinatorLayout mCoordinatorLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,11 +50,10 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayoutMain);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayoutMain);
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        setSupportActionBar(mToolbar);
 
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -91,31 +76,45 @@ public class MainActivity extends AppCompatActivity
 
             mClient = new LibrusClient(this, mAuthToken, mAuthType);
 
-            mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerView);
 
-            mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.main_swipeRefreshLayout);
-
-            mRecyclerView.setHasFixedSize(true);
-
-            mLayoutManager = new LinearLayoutManager(this);
             mNavigationLayoutManager = new LinearLayoutManager(this);
-            mRecyclerView.setLayoutManager(mLayoutManager);
 
-            mDataSet = new HomeItemsGroup();
+            mNavigationDrawerItems = new NavigationDrawerItems();
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_SUB_HEADER, "Main header"));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_help_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Item 2", getDrawable(R.drawable.ic_menu_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_DIVIDER));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_SUB_HEADER, "Header"));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_help_white_24dp)));
+            try
+            {
+                mNavigationDrawerItems.setEnabled(1);
+            }
+            catch(IndexOutOfBoundsException e)
+            {
+                e.printStackTrace();
+            }
 
-            String[] mPlanetTitles = getResources().getStringArray(R.array.planets);
-            DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-            RecyclerView mDrawerList = (RecyclerView) findViewById(R.id.left_drawer);
-
-            mDrawerLayout.setStatusBarBackground(R.color.colorPrimaryDark);
-
-            Window window = getWindow();
-            window.setStatusBarColor(getColor(R.color.colorPrimaryDark));
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            mNavigationDrawerRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
 
             // Set the adapter for the list view
-            String[] a = getResources().getStringArray(R.array.planets);
-            mDrawerList.setLayoutManager(mNavigationLayoutManager);
-            mDrawerList.setAdapter(new NavigationDrawerAdapter(a, this));
+            mNavigationDrawerRecyclerView.setLayoutManager(mNavigationLayoutManager);
+            mNavigationDrawerAdapter = new NavigationDrawerAdapter(mNavigationDrawerItems, this, this);
+            mNavigationDrawerRecyclerView.setAdapter(mNavigationDrawerAdapter);
+
+            mDrawerToggle = new ActionBarDrawerToggle(
+                    this,
+                    mDrawerLayout,
+                    mToolbar,
+                    R.string.drawer_open,
+                    R.string.drawer_close
+            );
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            // Set the drawer toggle as the DrawerListener
+            mDrawerLayout.addDrawerListener(mDrawerToggle);
             /*
             Example data set
 
@@ -140,60 +139,33 @@ public class MainActivity extends AppCompatActivity
             mDataSet.addAll(gradeGroups);
             */
 
-            ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT)
-            {
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir)
-                {
-                    if(swipeDir == ItemTouchHelper.RIGHT)
-                    {
-                        final int position = viewHolder.getLayoutPosition();
-                        Log.d(TAG, Integer.toString(position));
+            HomeFragment newFragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putString(HomeFragment.ARGUMENT_TOKEN, mAuthToken);
+            args.putString(HomeFragment.ARGUMENT_TOKEN_TYPE, mAuthType);
+            newFragment.setArguments(args);
 
-                        mDataSet.remove(position);
-                        mRecyclerView.removeViewAt(position);
-                        mAdapter.notifyItemRemoved(position);
-                        //mAdapter.notifyItemRangeChanged(position, group.size());
-                    }
-                }
-
-                @Override
-                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target)
-                {
-                    return false;
-                }
-
-                @Override
-                public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
-                {
-                    if(((HomeListAdapter.ViewHolder) viewHolder).getType() == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER)
-                        return 0;
-                    return super.getSwipeDirs(recyclerView, viewHolder);
-                }
-            };
-
-            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-
-            mAdapter = new HomeListAdapter(this, mDataSet);
-            mRecyclerView.setAdapter(mAdapter);
-            itemTouchHelper.attachToRecyclerView(mRecyclerView);
-
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-            {
-                @Override
-                public void onRefresh()
-                {
-                    fetchData(true);
-                }
-            });
-
-            mSwipeRefreshLayout.setColorSchemeColors(
-                    getColor(R.color.refreshLayoutBlue),
-                    getColor(R.color.refreshLayoutRed),
-                    getColor(R.color.refreshLayoutGreen),
-                    getColor(R.color.refreshLayoutYellow));
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, newFragment);
+            //transaction.addToBackStack(null);
+            transaction.commit();
         }
-        fetchData(false);
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
+    {
+        super.onPostCreate(savedInstanceState, persistentState);
+        mDrawerToggle.syncState();
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggl
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -204,12 +176,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onClick(View view)
+    {
+        int position = mNavigationDrawerRecyclerView.getChildLayoutPosition(view);
+        if(mNavigationDrawerItems.get(position).getType() == NavigationDrawerItem.TYPE_ITEM)
+        {
+            Toast.makeText(view.getContext(), "Clicked on " + position, Toast.LENGTH_SHORT).show();
+            mNavigationDrawerItems.setEnabled(position);
+            mNavigationDrawerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch(item.getItemId())
         {
             case R.id.action_settings:
-                final Snackbar snackbar = Snackbar.make(coordinatorLayout, "Open settings Activity", Snackbar.LENGTH_LONG);
+                final Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "Open settings Activity", Snackbar.LENGTH_LONG);
                 snackbar.show();
                 return true;
             case R.id.action_log_out:
@@ -217,39 +201,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void fetchData(final boolean showRefresh)
-    {
-        mDataSet.clear();
-        mAdapter.notifyDataSetChanged();
-
-        final Context context = this;
-
-        mClient.fetchLuckyNumber(new LibrusClient.LuckyNumberResponseListener()
-        {
-            @Override
-            public void onStart()
-            {
-                if(showRefresh)
-                    mSwipeRefreshLayout.setRefreshing(true);
-            }
-
-            @Override
-            public void onSuccess(LuckyNumber luckyNumber)
-            {
-                mDataSet.add(luckyNumber);
-                mAdapter.notifyDataSetChanged();
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(APIException exception)
-            {
-                mSwipeRefreshLayout.setRefreshing(false);
-                APIException.displayErrorToUser(exception, context);
-            }
-        });
     }
 
     private void logout()

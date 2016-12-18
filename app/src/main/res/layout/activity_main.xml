@@ -29,34 +29,25 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/main_swipeRefreshLayout"
+        <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/background_material_grey100"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/main_recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:scrollbars="vertical">
-
-            </android.support.v7.widget.RecyclerView>
-        </android.support.v4.widget.SwipeRefreshLayout>
-
+        </FrameLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/background_material_grey100"
+        android:background="@android:color/white"
         android:choiceMode="singleChoice"
         android:divider="@color/greyDivider_12"
-        android:dividerHeight="1dp"/>
+        android:dividerHeight="1dp"
+        android:paddingTop="24dp"/>
 
 </android.support.v4.widget.DrawerLayout>
