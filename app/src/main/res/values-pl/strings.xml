@@ -13,4 +13,6 @@
     <string name="prompt_password">Hasło</string>
     <string name="prompt_username">Nazwa urzytkownika</string>
     <string name="title_activity_login">Logowanie</string>
+    <string name="drawer_close">Zamknij</string>
+    <string name="drawer_open">Otwórz</string>
 </resources>
