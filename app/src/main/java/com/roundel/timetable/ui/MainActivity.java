@@ -3,6 +3,7 @@ package com.roundel.timetable.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
@@ -19,13 +20,21 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.roundel.timetable.NavigationDrawerAdapter;
 import com.roundel.timetable.NavigationDrawerItem;
 import com.roundel.timetable.NavigationDrawerItems;
 import com.roundel.timetable.R;
 import com.roundel.timetable.api.LibrusClient;
+
+
+import static com.roundel.timetable.NavigationDrawerItem.ID_ANNOUNCEMENTS;
+import static com.roundel.timetable.NavigationDrawerItem.ID_CALENDAR;
+import static com.roundel.timetable.NavigationDrawerItem.ID_CONTACT;
+import static com.roundel.timetable.NavigationDrawerItem.ID_GRADES;
+import static com.roundel.timetable.NavigationDrawerItem.ID_HOME;
+import static com.roundel.timetable.NavigationDrawerItem.ID_SETTINGS;
+import static com.roundel.timetable.NavigationDrawerItem.ID_TIMETABLE;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -81,16 +90,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mNavigationDrawerItems = new NavigationDrawerItems();
 
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Home", getDrawable(R.drawable.ic_home_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Calendar", getDrawable(R.drawable.ic_event_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Grades", getDrawable(R.drawable.ic_grade_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Announcements", getDrawable(R.drawable.ic_announcement_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Timetable", getDrawable(R.drawable.ic_timetable_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_HOME, "Home", getDrawable(R.drawable.ic_home_white_24dp), true));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_CALENDAR, "Calendar", getDrawable(R.drawable.ic_event_white_24dp), true));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_GRADES, "Grades", getDrawable(R.drawable.ic_grade_white_24dp), true));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_ANNOUNCEMENTS, "Announcements", getDrawable(R.drawable.ic_announcement_white_24dp), true));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_TIMETABLE, "Timetable", getDrawable(R.drawable.ic_timetable_white_24dp), true));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_DIVIDER));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Contact", getDrawable(R.drawable.ic_mail_white_24dp)));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, "Settings", getDrawable(R.drawable.ic_settings_white_24dp)));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_CONTACT, "Contact", getDrawable(R.drawable.ic_mail_white_24dp), false));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_SETTINGS, "Settings", getDrawable(R.drawable.ic_settings_white_24dp), false));
             try
             {
                 mNavigationDrawerItems.setEnabled(1);
@@ -185,12 +194,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view)
     {
         int position = mNavigationDrawerRecyclerView.getChildLayoutPosition(view);
-        if(mNavigationDrawerItems.get(position).getType() == NavigationDrawerItem.TYPE_ITEM)
+        if(mNavigationDrawerItems.get(position) != null)
         {
-            Toast.makeText(view.getContext(), "Clicked on " + position, Toast.LENGTH_SHORT).show();
-            mNavigationDrawerItems.setEnabled(position);
-            mNavigationDrawerAdapter.notifyDataSetChanged();
-            mDrawerLayout.closeDrawers();
+            NavigationDrawerItem item = mNavigationDrawerItems.get(position);
+            final int enabled = mNavigationDrawerItems.getEnabled();
+            if(item.getType() == NavigationDrawerItem.TYPE_ITEM)
+            {
+
+                //Toast.makeText(view.getContext(), "Clicked on " + position, Toast.LENGTH_SHORT).show();
+                mNavigationDrawerItems.setEnabled(position);
+                mNavigationDrawerAdapter.notifyDataSetChanged();
+                mDrawerLayout.closeDrawers();
+
+                if(enabled != position)
+                {
+                    switch(item.getId())
+                    {
+                        case ID_HOME:
+                            HomeFragment newFragment = new HomeFragment();
+                            Bundle args = new Bundle();
+                            args.putString(HomeFragment.ARGUMENT_TOKEN, mAuthToken);
+                            args.putString(HomeFragment.ARGUMENT_TOKEN_TYPE, mAuthType);
+                            newFragment.setArguments(args);
+
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.fragment_container, newFragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+                            break;
+
+                        case ID_CONTACT:
+                            Intent sendIntent = new Intent();
+                            sendIntent.setData(Uri.parse("mailto:rounndel@gmail.com"));
+                            sendIntent.setAction(Intent.ACTION_SENDTO);
+                            sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Librus");
+                            startActivity(Intent.createChooser(sendIntent, "Contact me"));
+                    }
+                }
+            }
         }
     }
 

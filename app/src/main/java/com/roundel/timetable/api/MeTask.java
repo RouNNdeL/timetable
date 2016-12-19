@@ -4,12 +4,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.roundel.timetable.R;
-import com.roundel.timetable.librus.LuckyNumber;
+import com.roundel.timetable.librus.Me;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.ParseException;
 
 
 import static com.roundel.timetable.api.APISupport.request;
@@ -18,14 +16,14 @@ import static com.roundel.timetable.api.APISupport.request;
  * Created by Krzysiek on 2016-12-14.
  */
 
-public class LuckyNumberTask extends AsyncTask<String, String, LuckyNumber>
+public class MeTask extends AsyncTask<String, String, Me>
 {
     private final String TAG = getClass().getSimpleName();
-    private LuckyNumberResponse mListener;
+    private MeTask.MeResponseListener mListener;
     private Context mContext;
     private APIException exception = null;
 
-    public LuckyNumberTask(Context context, LuckyNumberResponse listener)
+    public MeTask(Context context, MeTask.MeResponseListener listener)
     {
         this.mContext = context;
         this.mListener = listener;
@@ -38,13 +36,13 @@ public class LuckyNumberTask extends AsyncTask<String, String, LuckyNumber>
     }
 
     @Override
-    protected LuckyNumber doInBackground(String... strings)
+    protected Me doInBackground(String... strings)
     {
         String token = strings[0] == null ? "" : strings[0];
         String auth_type = strings[1] == null ? "" : strings[1];
         JSONObject params = new JSONObject();
         JSONObject headers = new JSONObject();
-        String url = mContext.getString(R.string.api_base_url) + mContext.getString(R.string.api_luck_numbers);
+        String url = mContext.getString(R.string.api_base_url) + mContext.getString(R.string.api_me);
 
         try
         {
@@ -77,26 +75,27 @@ public class LuckyNumberTask extends AsyncTask<String, String, LuckyNumber>
                     this.getClass().getName()
             );
         }
-        LuckyNumber number = null;
+        Me me = null;
         try
         {
-            number = LuckyNumber.fromJSON(jsonObject);
+            me = Me.fromJSON(jsonObject);
         }
-        catch(JSONException | ParseException e)
+        catch(JSONException e)
         {
+            e.printStackTrace();
             exception = new APIException(
                     APIException.UNKNOWN_RESPONSE,
                     APIException.UNKNOWN_RESPONSE_MESSAGE,
-                    response,
+                    e.getMessage(),
                     this.getClass().getName()
             );
         }
 
-        return number;
+        return me;
     }
 
     @Override
-    protected void onPostExecute(LuckyNumber s)
+    protected void onPostExecute(Me s)
     {
         if(exception == null)
             mListener.onSuccess(s);
@@ -104,11 +103,11 @@ public class LuckyNumberTask extends AsyncTask<String, String, LuckyNumber>
             mListener.onFailure(exception);
     }
 
-    public interface LuckyNumberResponse
+    public interface MeResponseListener
     {
         void onStart();
 
-        void onSuccess(LuckyNumber result);
+        void onSuccess(Me result);
 
         void onFailure(APIException exception);
     }

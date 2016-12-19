@@ -3,14 +3,7 @@ package com.roundel.timetable.api;
 import android.content.Context;
 
 import com.roundel.timetable.librus.LuckyNumber;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import com.roundel.timetable.librus.Me;
 
 /**
  * Created by Krzysiek on 2016-12-18.
@@ -26,8 +19,6 @@ public class LibrusClient
     private String token;
     private String tokenType;
     private Context mContext;
-
-    private DateFormat luckNumberDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     public LibrusClient(Context context, String token, String tokenType)
     {
@@ -58,7 +49,7 @@ public class LibrusClient
 
     public void fetchLuckyNumber(final LuckyNumberResponseListener listener)
     {
-        LuckyNumberTask task = new LuckyNumberTask(this.mContext, new LuckyNumberTask.GetLuckyNumberResponse()
+        LuckyNumberTask task = new LuckyNumberTask(this.mContext, new LuckyNumberTask.LuckyNumberResponse()
         {
             @Override
             public void onStart()
@@ -67,26 +58,34 @@ public class LibrusClient
             }
 
             @Override
-            public void onSuccess(JSONObject result)
+            public void onSuccess(LuckyNumber result)
             {
-                try
-                {
-                    JSONObject info = result.getJSONObject(LuckyNumberTask.JSON_LUCKY_NUMBER_ROOT);
-                    int luckyNumberNumber = info.getInt(LuckyNumberTask.JSON_LUCKY_NUMBER);
-                    String luckyNumberDay = info.getString(LuckyNumberTask.JSON_LUCKY_NUMBER_DAY);
-                    final LuckyNumber luckyNumber = new LuckyNumber(luckyNumberNumber, luckNumberDateFormat.parse(luckyNumberDay));
-                    listener.onSuccess(luckyNumber);
-                }
-                catch(JSONException | ParseException e)
-                {
-                    APIException exception = new APIException(
-                            APIException.PARSE_JSON,
-                            APIException.PARSE_JSON_MESSAGE,
-                            e.getMessage(),
-                            this.getClass().getSimpleName()
-                    );
-                    listener.onFailure(exception);
-                }
+                listener.onSuccess(result);
+            }
+
+            @Override
+            public void onFailure(APIException e)
+            {
+                listener.onFailure(e);
+            }
+        });
+        task.execute(this.token, this.tokenType);
+    }
+
+    public void fetchMe(final MeResponseListener listener)
+    {
+        MeTask task = new MeTask(this.mContext, new MeTask.MeResponseListener()
+        {
+            @Override
+            public void onStart()
+            {
+                listener.onStart();
+            }
+
+            @Override
+            public void onSuccess(Me result)
+            {
+                listener.onSuccess(result);
             }
 
             @Override
@@ -103,6 +102,15 @@ public class LibrusClient
         void onStart();
 
         void onSuccess(LuckyNumber luckyNumber);
+
+        void onFailure(APIException exception);
+    }
+
+    public interface MeResponseListener
+    {
+        void onStart();
+
+        void onSuccess(Me m);
 
         void onFailure(APIException exception);
     }

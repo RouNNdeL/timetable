@@ -68,8 +68,8 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
                 break;
         }
 
-        content.setOnClickListener(mOnClickListener);
         cardView.addView(content);
+        cardView.setOnClickListener(mOnClickListener);
         ViewHolder viewHolder = new ViewHolder(cardView, viewType);
 
         return viewHolder;

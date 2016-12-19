@@ -10,6 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.roundel.timetable.HomeListAdapter;
 import com.roundel.timetable.R;
@@ -17,6 +18,7 @@ import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LibrusClient;
 import com.roundel.timetable.librus.HomeItemsGroup;
 import com.roundel.timetable.librus.LuckyNumber;
+import com.roundel.timetable.librus.Me;
 
 public class HomeFragment extends Fragment
 {
@@ -111,7 +113,7 @@ public class HomeFragment extends Fragment
             public void onClick(View view)
             {
                 int position = mRecyclerView.getChildAdapterPosition(view);
-
+                Toast.makeText(getContext(), "Clicked on " + position, Toast.LENGTH_SHORT).show();
             }
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -173,6 +175,28 @@ public class HomeFragment extends Fragment
                 mDataSet.add(luckyNumber);
                 mAdapter.notifyDataSetChanged();
                 mSwipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailure(APIException exception)
+            {
+                mSwipeRefreshLayout.setRefreshing(false);
+                APIException.displayErrorToUser(exception, context);
+            }
+        });
+        mClient.fetchMe(new LibrusClient.MeResponseListener()
+        {
+            @Override
+            public void onStart()
+            {
+                if(showRefresh)
+                    mSwipeRefreshLayout.setRefreshing(true);
+            }
+
+            @Override
+            public void onSuccess(Me m)
+            {
+                Toast.makeText(getContext(), m.getFirstName(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

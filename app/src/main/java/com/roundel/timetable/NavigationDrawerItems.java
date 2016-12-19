@@ -20,6 +20,7 @@ public class NavigationDrawerItems extends ArrayList<NavigationDrawerItem>
     {
         if(this.size() <= position)
             throw new IndexOutOfBoundsException("Position not in list");
-        this.enabled = position;
+        if(this.get(position).canEnable())
+            this.enabled = position;
     }
 }

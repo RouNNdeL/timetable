@@ -22,7 +22,7 @@ public class APIException extends Exception
     public static final String UNKNOWN_RESPONSE_MESSAGE = "ERROR_UNKNOWN_RESPONSE";
     public static final String PARSE_JSON_MESSAGE = "ERROR_PARSE_JSON";
     public static final String INVALID_PASSWORD_MESSAGE = "ERROR_INVALID_PASSWORD";
-    public static final String UNKNOWN_ERROR_MESSAGE = "UNNOWN_ERROR";
+    public static final String UNKNOWN_ERROR_MESSAGE = "UNKNOWN_ERROR";
 
     private int code;
     private String message;

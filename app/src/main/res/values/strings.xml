@@ -27,7 +27,7 @@
     <string name="api_content_type_json" translatable="false">application/json</string>
     <string name="api_base_url" translatable="false">api.librus.pl</string>
     <string name="api_oauth_token" translatable="false">/OAuth/Token</string>
-    <string name="api_current_user" translatable="false">/2.0/Me</string>
+    <string name="api_me" translatable="false">/2.0/Me</string>
     <string name="api_luck_numbers" translatable="false">/2.0/LuckyNumbers</string>
     <string name="api_user_agent" translatable="false">Mozilla/5.0 (Linux; Android 6.0.1; A0001 Build/MOB30Z) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Crosswalk/18.48.477.13 Mobile Safari/537.36</string>
 

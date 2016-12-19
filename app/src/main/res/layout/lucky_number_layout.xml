@@ -13,13 +13,14 @@
         android:layout_height="wrap_content"
         android:background="@drawable/circle_48dp"
         android:backgroundTint="@color/colorAccent"
+        android:clickable="false"
         android:gravity="center"
         android:maxHeight="@dimen/circle_max_size"
         android:maxWidth="@dimen/circle_max_size"
         android:text="luckyNumber"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textColor="?android:textColorPrimaryInverse"
+        android:textColor="@android:color/white"
         />
 
     <LinearLayout
