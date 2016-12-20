@@ -28,7 +28,7 @@
             android:text="gradeNumber"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:textColor="?android:textColorPrimaryInverse"
+            android:textColor="@android:color/white"
             />
 
         <LinearLayout

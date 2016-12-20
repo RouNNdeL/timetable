@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.roundel.timetable.HomeListAdapter;
+import com.roundel.timetable.LoadingProgress;
 import com.roundel.timetable.R;
 import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LibrusClient;
@@ -57,6 +58,7 @@ public class HomeFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        int columns = getContext().getResources().getInteger(R.integer.columns_count);
 
         Bundle args = getArguments();
         mAuthToken = args.getString(ARGUMENT_TOKEN);
@@ -65,9 +67,9 @@ public class HomeFragment extends Fragment
         mClient = new LibrusClient(getContext(), mAuthToken, mAuthType);
 
 
-        mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.main_recyclerView);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.main_swipeRefreshLayout);
+        mLayoutManager = new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.home_recyclerView);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_swipeRefreshLayout);
 
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -99,7 +101,8 @@ public class HomeFragment extends Fragment
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
             {
-                if(((HomeListAdapter.ViewHolder) viewHolder).getType() == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER)
+                final int type = ((HomeListAdapter.ViewHolder) viewHolder).getType();
+                if(type == HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER || type == HomeItemsGroup.ITEM_LOADING_PROGRESS)
                     return 0;
                 return super.getSwipeDirs(recyclerView, viewHolder);
             }
@@ -137,6 +140,7 @@ public class HomeFragment extends Fragment
         mSwipeRefreshLayout.setColorSchemeColors(
                 getContext().getColor(R.color.colorAccentDark)
         );
+
         fetchData(false);
         return view;
     }
@@ -153,9 +157,19 @@ public class HomeFragment extends Fragment
         super.onDetach();
     }
 
+    private void addItem(Object item, boolean move)
+    {
+        mDataSet.add(item);
+        if(move)
+            mAdapter.notifyItemMoved(mDataSet.size() - 2, mDataSet.size() - 1);
+        else
+            mAdapter.notifyItemInserted(mDataSet.size() - 1);
+    }
+
     private void fetchData(final boolean showRefresh)
     {
         mDataSet.clear();
+        if(!showRefresh) mDataSet.add(new LoadingProgress());
         mAdapter.notifyDataSetChanged();
 
         final Context context = getContext();
@@ -172,9 +186,7 @@ public class HomeFragment extends Fragment
             @Override
             public void onSuccess(LuckyNumber luckyNumber)
             {
-                mDataSet.add(luckyNumber);
-                mAdapter.notifyDataSetChanged();
-                mSwipeRefreshLayout.setRefreshing(false);
+                addItem(luckyNumber, !showRefresh);
             }
 
             @Override
@@ -194,9 +206,12 @@ public class HomeFragment extends Fragment
             }
 
             @Override
-            public void onSuccess(Me m)
+            public void onSuccess(Me me)
             {
-                Toast.makeText(getContext(), m.getFirstName(), Toast.LENGTH_SHORT).show();
+                addItem(me, !showRefresh);
+                if(mDataSet.removeProgress())
+                    mAdapter.notifyItemRemoved(mDataSet.size());
+                mSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -206,5 +221,6 @@ public class HomeFragment extends Fragment
                 APIException.displayErrorToUser(exception, context);
             }
         });
+
     }
 }

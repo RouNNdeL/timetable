@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.roundel.timetable.librus.Grade;
 import com.roundel.timetable.librus.GradeGroup;
 import com.roundel.timetable.librus.HomeItemsGroup;
 import com.roundel.timetable.librus.LuckyNumber;
@@ -45,13 +44,9 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     {
         int contentPadding = Math.round(mContext.getResources().getDimension(R.dimen.card_contentPadding));
 
-        CardView cardView = new CardView(mContext);
-        final RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(contentPadding, contentPadding / 2, contentPadding, contentPadding / 2);
-        cardView.setLayoutParams(params);
-        cardView.setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding);
-
         View content;
+
+        boolean useCardView = true;
 
         switch(viewType)
         {
@@ -63,14 +58,36 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
                 content = LayoutInflater.from(parent.getContext()).inflate(R.layout.grade_group_new, parent, false);
                 break;
 
+            case HomeItemsGroup.ITEM_LOADING_PROGRESS:
+                content = LayoutInflater.from(parent.getContext()).inflate(R.layout.loading_row, parent, false);
+                useCardView = false;
+                break;
+
             default:
                 content = LayoutInflater.from(parent.getContext()).inflate(R.layout.default_card_content, parent, false);
                 break;
         }
 
-        cardView.addView(content);
-        cardView.setOnClickListener(mOnClickListener);
-        ViewHolder viewHolder = new ViewHolder(cardView, viewType);
+        ViewHolder viewHolder;
+
+        if(useCardView)
+        {
+            CardView cardView = new CardView(mContext);
+            final CardView.LayoutParams params = new CardView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(contentPadding / 2, contentPadding / 2, contentPadding / 2, 0);
+            cardView.setLayoutParams(params);
+            cardView.setContentPadding(contentPadding, contentPadding, contentPadding, contentPadding);
+
+            cardView.addView(content);
+            cardView.setOnClickListener(mOnClickListener);
+
+            viewHolder = new ViewHolder(cardView, viewType);
+        }
+        else
+        {
+            content.setOnClickListener(mOnClickListener);
+            viewHolder = new ViewHolder(content, viewType);
+        }
 
         return viewHolder;
     }
@@ -93,31 +110,31 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     {
         int type = getItemViewType(position);
         Object item = homeItemsGroup.get(position);
-        final CardView cardView = holder.getCardView();
+        final View content = holder.getContent();
 
         switch(type)
         {
             case HomeItemsGroup.ITEM_TYPE_LUCKY_NUMBER:
-                TextView title = (TextView) cardView.findViewById(R.id.luckyNumberTitle);
-                TextView number = (TextView) cardView.findViewById(R.id.luckyNumber);
-                TextView day = (TextView) cardView.findViewById(R.id.luckyNumberDay);
+                TextView title = (TextView) content.findViewById(R.id.luckyNumberTitle);
+                TextView number = (TextView) content.findViewById(R.id.luckyNumber);
+                TextView day = (TextView) content.findViewById(R.id.luckyNumberDay);
 
                 final LuckyNumber luckyNumber = (LuckyNumber) item;
                 number.setText(Integer.toString(luckyNumber.getNumber()));
                 day.setText(dateFormat.format(luckyNumber.getDate()));
                 break;
             case HomeItemsGroup.ITEM_TYPE_GRADE_GROUP:
-                LinearLayout container = (LinearLayout) cardView.findViewById(R.id.gradeGroupNewGradeContainer);
-                TextView subject = (TextView) cardView.findViewById(R.id.gradeGroupNewSubject);
-                TextView amount = (TextView) cardView.findViewById(R.id.gradeGroupNewAmount);
+                LinearLayout container = (LinearLayout) content.findViewById(R.id.gradeGroupNewGradeContainer);
+                TextView subject = (TextView) content.findViewById(R.id.gradeGroupNewSubject);
+                TextView amount = (TextView) content.findViewById(R.id.gradeGroupNewAmount);
 
                 //container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
                 final GradeGroup gradeGroup = (GradeGroup) item;
 
                 subject.setText(Integer.toString(gradeGroup.getSubject()));
-                amount.setText(String.format(Locale.getDefault(), "%d new", gradeGroup.getGrades().size()));
-                for(Grade grade : gradeGroup.getGrades())
+                amount.setText(String.format(Locale.getDefault(), "%d new", gradeGroup.size()));
+                for(GradeGroup.Grade grade : gradeGroup)
                 {
                     LinearLayout singleGrade = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.single_grade_layout, null);
 
@@ -142,8 +159,11 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
 
                 break;
 
+            case HomeItemsGroup.ITEM_LOADING_PROGRESS:
+                break;
+
             default:
-                TextView message = (TextView) cardView.findViewById(R.id.defaultErrorText);
+                TextView message = (TextView) content.findViewById(R.id.defaultErrorText);
                 message.setText(String.format(Locale.getDefault(), "View type %d not found", type));
                 break;
         }
@@ -170,14 +190,14 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         // each data item is just a string in this case
-        private CardView mCardView;
+        private View content;
         private int type;
 
-        public ViewHolder(CardView v, int type)
+        public ViewHolder(View v, int type)
         {
             super(v);
             this.type = type;
-            mCardView = v;
+            content = v;
         }
 
         public int getType()
@@ -190,9 +210,9 @@ public class HomeListAdapter extends RecyclerView.Adapter<HomeListAdapter.ViewHo
             this.type = type;
         }
 
-        public CardView getCardView()
+        public View getContent()
         {
-            return mCardView;
+            return content;
         }
     }
 }
