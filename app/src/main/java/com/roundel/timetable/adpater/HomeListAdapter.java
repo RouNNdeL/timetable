@@ -1,4 +1,4 @@
-package com.roundel.timetable;
+package com.roundel.timetable.adpater;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.roundel.timetable.R;
 import com.roundel.timetable.librus.GradeGroup;
 import com.roundel.timetable.librus.HomeItemsGroup;
 import com.roundel.timetable.librus.LuckyNumber;

@@ -12,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.roundel.timetable.HomeListAdapter;
 import com.roundel.timetable.LoadingProgress;
 import com.roundel.timetable.R;
+import com.roundel.timetable.adpater.HomeListAdapter;
 import com.roundel.timetable.api.APIException;
 import com.roundel.timetable.api.LibrusClient;
 import com.roundel.timetable.librus.HomeItemsGroup;

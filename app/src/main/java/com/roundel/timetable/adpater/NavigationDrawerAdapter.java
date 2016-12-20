@@ -1,4 +1,4 @@
-package com.roundel.timetable;
+package com.roundel.timetable.adpater;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Locale;
+import com.roundel.timetable.NavigationDrawerItem;
+import com.roundel.timetable.NavigationDrawerItems;
+import com.roundel.timetable.R;
 
 /**
  * Created by Krzysiek on 2016-12-18.

@@ -21,10 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.roundel.timetable.NavigationDrawerAdapter;
 import com.roundel.timetable.NavigationDrawerItem;
 import com.roundel.timetable.NavigationDrawerItems;
 import com.roundel.timetable.R;
+import com.roundel.timetable.adpater.NavigationDrawerAdapter;
 import com.roundel.timetable.api.LibrusClient;
 
 
@@ -211,17 +211,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     switch(item.getId())
                     {
                         case ID_HOME:
-                            HomeFragment newFragment = new HomeFragment();
+                            HomeFragment homeFragment = new HomeFragment();
                             Bundle args = new Bundle();
                             args.putString(HomeFragment.ARGUMENT_TOKEN, mAuthToken);
                             args.putString(HomeFragment.ARGUMENT_TOKEN_TYPE, mAuthType);
-                            newFragment.setArguments(args);
+                            homeFragment.setArguments(args);
 
                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.fragment_container, newFragment);
+                            transaction.replace(R.id.fragment_container, homeFragment);
                             transaction.addToBackStack(null);
                             transaction.commit();
                             break;
+
+                        case ID_GRADES:
+                            GradesFragment newFragment = new GradesFragment();
+                            Bundle args1 = new Bundle();
+                            args1.putString(GradesFragment.ARGUMENT_TOKEN, mAuthToken);
+                            args1.putString(GradesFragment.ARGUMENT_TOKEN_TYPE, mAuthType);
+                            newFragment.setArguments(args1);
+
+                            FragmentTransaction transaction1 = getSupportFragmentManager().beginTransaction();
+                            transaction1.replace(R.id.fragment_container, newFragment);
+                            transaction1.addToBackStack(null);
+                            transaction1.commit();
+                            break;
+
 
                         case ID_CONTACT:
                             Intent sendIntent = new Intent();
@@ -229,6 +243,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             sendIntent.setAction(Intent.ACTION_SENDTO);
                             sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Librus");
                             startActivity(Intent.createChooser(sendIntent, "Contact me"));
+                            break;
+
                     }
                 }
             }

@@ -30,7 +30,7 @@ public class GradeGroup extends ArrayList<GradeGroup.Grade>
         this.subject = subject;
     }
 
-    public class Grade
+    public static class Grade
     {
         private String grade;
         private Date date;

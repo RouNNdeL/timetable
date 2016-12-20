@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="88dp"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/gradeGroupSubject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:text="gradeGroupSubject"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            android:transitionName="test1"/>
+
+        <TextView
+            android:id="@+id/gradeGroupGradeCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="gradeGroupGradeCount"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="14sp"
+            android:transitionName="test2"/>
+
+        <TextView
+            android:id="@+id/gradeGroupTeacher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="gradeGroupTeacher"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="14sp"
+            android:transitionName="test3"/>
+    </LinearLayout>
+
+    <include layout="@layout/navigation_drawer_divider"/>
+
+</LinearLayout>

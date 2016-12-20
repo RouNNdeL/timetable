@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <View
             android:layout_width="match_parent"
