@@ -1,6 +1,7 @@
 package com.roundel.timetable.adpater;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.roundel.timetable.R;
 import com.roundel.timetable.librus.GradeGroup;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
@@ -62,9 +64,12 @@ public class GradeGroupAdapter extends RecyclerView.Adapter<GradeGroupAdapter.Vi
 
         TextView number = (TextView) content.findViewById(R.id.gradeNumber);
         TextView type = (TextView) content.findViewById(R.id.gradeType);
+        TextView date = (TextView) content.findViewById(R.id.gradeDay);
 
         number.setText(grade.getGrade());
+        number.setBackgroundTintList(ColorStateList.valueOf(grade.getColor()));
         type.setText(String.format(Locale.getDefault(), "%d", grade.getType()));
+        date.setText(new SimpleDateFormat("dd MMMM yyyy").format(grade.getDate()));
     }
 
     @Override
