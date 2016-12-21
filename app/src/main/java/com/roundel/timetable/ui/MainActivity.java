@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_HOME, "Home", getDrawable(R.drawable.ic_home_white_24dp), true));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_CALENDAR, "Calendar", getDrawable(R.drawable.ic_event_white_24dp), true));
-            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_GRADES, "Grades", getDrawable(R.drawable.ic_grade_white_24dp), true));
+            mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_GRADES, "Grades", getDrawable(R.drawable.ic_grade2_white_24dp), true));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_ANNOUNCEMENTS, "Announcements", getDrawable(R.drawable.ic_announcement_white_24dp), true));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_ITEM, ID_TIMETABLE, "Timetable", getDrawable(R.drawable.ic_timetable_white_24dp), true));
             mNavigationDrawerItems.add(new NavigationDrawerItem(NavigationDrawerItem.TYPE_EMPTY_SPACE));
